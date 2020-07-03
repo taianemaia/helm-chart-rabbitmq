@@ -1,0 +1,110 @@
+{
+  "rabbit_version": "3.8.3",
+  "rabbitmq_version": "3.8.3",
+  "users": [{
+    "name": "admin",
+    "password": "admin",
+    "tags": "administrator"
+  },
+    {
+      "name": "app-user",
+      "password": "1234",
+      "tags": "app"
+    }
+  ],
+  "vhosts": [{
+    "name": "/"
+  }],
+  "permissions": [{
+    "user": "admin",
+    "vhost": "/",
+    "configure": ".*",
+    "write": ".*",
+    "read": ".*"
+  },
+    {
+      "user": "app-user",
+      "vhost": "/",
+      "configure": "",
+      "write": "^app.*",
+      "read": "^app.*"
+    }
+  ],
+  "parameters": [],
+  "global_parameters": [{
+    "name": "cluster_name",
+    "value": "rabbit-arqt-refe"
+  }],
+  "policies": [{
+    "vhost": "/",
+    "name": "HA",
+    "pattern": "",
+    "apply-to": "queues",
+    "definition": {
+      "ha-mode": "exactly",
+      "ha-params": 2,
+      "ha-sync-mode": "manual"
+    },
+    "priority": 0
+  }],
+  "queues": [{
+    "name": "app-queue",
+    "vhost": "/",
+    "durable": true,
+    "auto_delete": false,
+    "arguments": {}
+  },
+    {
+      "name": "app-chat",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "app-os",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+
+  ],
+  "exchanges": [{
+    "name": "app-exchange",
+    "vhost": "/",
+    "type": "direct",
+    "durable": true,
+    "auto_delete": false,
+    "internal": false,
+    "arguments": {}
+  }
+
+  ],
+  "bindings": [{
+    "source": "app-exchange",
+    "vhost": "/",
+    "destination": "app-queue",
+    "destination_type": "queue",
+    "routing_key": "",
+    "arguments": {}
+  },
+    {
+      "source": "app-exchange",
+      "vhost": "/",
+      "destination": "app-chat",
+      "destination_type": "queue",
+      "routing_key": "chat",
+      "arguments": {}
+    },
+    {
+      "source": "app-exchange",
+      "vhost": "/",
+      "destination": "app-os",
+      "destination_type": "queue",
+      "routing_key": "service-desk",
+      "arguments": {}
+    }
+
+  ]
+}

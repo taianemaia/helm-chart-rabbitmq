@@ -1,0 +1,95 @@
+plugins: [rabbitmq_management, rabbitmq_prometheus, rabbitmq_shovel, rabbitmq_shovel_management]
+extraConfiguration: |-
+  # ======================================
+  # RabbitMQ broker section
+  # ======================================
+
+  ## Related doc guide: https://rabbitmq.com/configure.html. See
+  ## https://rabbitmq.com/documentation.html for documentation ToC.
+
+  listeners.tcp.default = 5672
+
+  loopback_users = none
+
+  heartbeat = 60
+
+  vm_memory_high_watermark.absolute = 1GB
+  vm_memory_high_watermark_paging_ratio = 0.75
+  disk_free_limit.absolute = 200mb
+
+  background_gc_enabled = true
+  background_gc_target_interval = 30000
+
+  memory_monitor_interval = 10000
+
+  ## ----------------------------------------------------------------------------
+  ## RabbitMQ Management Plugin
+  ##
+  ## Related doc guide: https://rabbitmq.com/management.html.
+  ## ----------------------------------------------------------------------------
+
+  # =======================================
+  # Management section
+  # =======================================
+
+  management.load_definitions = definitions.json
+
+  ## HTTP listener and embedded Web server settings.
+  ### See https://rabbitmq.com/management.html for details.
+
+  management.tcp.port = 15672
+  management.tcp.ip   = 0.0.0.0
+
+  management.tcp.shutdown_timeout   = 7000
+  management.tcp.max_keepalive      = 60
+  management.tcp.idle_timeout       = 120
+  management.tcp.inactivity_timeout = 300
+  management.tcp.request_timeout    = 30
+  management.tcp.compress           = true
+
+  # =======================================
+  # Monitoring section
+  # =======================================
+  management.rates_mode = none
+  collect_statistics_interval = 15000
+
+  management.sample_retention_policies.global.minute    = 5
+  management.sample_retention_policies.global.hour  = 60
+  management.sample_retention_policies.global.day = 1200
+  management.sample_retention_policies.basic.minute   = 5
+  management.sample_retention_policies.basic.hour = 60
+  management.sample_retention_policies.detailed.10 = 5
+
+  ## ----------------------------------------------------------------------------
+  ## RabbitMQ Log Support
+  ## ----------------------------------------------------------------------------
+
+  # =======================================
+  # Logging section
+  # =======================================
+
+  log.file = false
+  log.console = true
+  log.console.level = info
+  log.exchange = false
+
+  # =======================================
+  # Cluster section
+  #
+  # Required steps:
+  # 1- Create a service headless as cluster-service-discovery
+  # 2- Create secret with ERLANG_COOKIE
+  # 3- Set these environment variables: POD_NAME = (valueFrom:fieldRef:fieldPath: metadata.name), RABBITMQ_USE_LONGNAME = true,
+  # 4- Set RABBITMQ_NODENAME with "rabbit@$(POD_NAME).<name of cluster-service-discovery (1)>.<namespace>.svc.cluster.local"
+  # 5- Create a StatefulSet Deployment
+  # 6- Create LB to access Management UI and Metrics (Prometheus)
+  # 7- Enable these plugins: rabbitmq_management, rabbitmq_prometheus
+  # =======================================
+
+  cluster_formation.peer_discovery_backend = rabbit_peer_discovery_dns
+  cluster_formation.dns.hostname = cluster-service-discovery.namespace.svc.cluster.local
+  cluster_formation.node_type = disc
+  queue_master_locator=min-masters
+
+  cluster_keepalive_interval = 30000
+  cluster_partition_handling = ignore
